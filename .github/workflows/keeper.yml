@@ -1,0 +1,13 @@
+name: keeper
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch: {}
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Collect fees on both chains and buy back $TWIN
+        run: |
+          curl -sS --max-time 90 -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" https://twincast.vercel.app/api/tick

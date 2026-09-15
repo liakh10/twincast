@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<script src="/config.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deploy · Twincast</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" type="image/png" href="/assets/favicon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#050d0a;--panel:#0b1712;--line:#1d3529;--ink:#e6f1eb;--dim:#8ca496;--em:#22d882;--sil:#c9d4d1;--bad:#ff7a7a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:13px;line-height:1.7;padding:clamp(16px,4vw,48px)}
+.in{width:min(900px,100%);margin:0 auto}
+h1{font-family:Michroma,sans-serif;font-weight:400;font-size:clamp(24px,5vw,44px);letter-spacing:.06em}
+h1 em{font-style:normal;color:var(--em)}
+h2{font-family:Michroma,sans-serif;font-weight:400;font-size:15px;letter-spacing:.06em;margin-bottom:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:14px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row + .row{margin-top:10px}
+.btn{height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:#10221a;color:var(--ink);font:inherit;cursor:pointer}
+.btn.em{background:var(--em);color:#03140b;border-color:var(--em)}
+.btn:disabled{opacity:.3;cursor:default}
+input{height:40px;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:0 12px;font:inherit;color:inherit;min-width:0;flex:1}
+.dim{color:var(--dim)} .ok{color:var(--em)} .bad{color:var(--bad)}
+.st{word-break:break-all;font-size:12px}
+pre{font-family:inherit;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px;white-space:pre-wrap;word-break:break-all}
+ol{margin:10px 0 0 18px}
+a{color:var(--em)}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div class="in">
+  <h1>Deploy <em>Twincast</em></h1>
+  <p class="dim" style="margin-top:10px">Use the same wallet on both chains. The factory and router go through the CREATE2 deployer at 0x4e59…956C, so they get the same address on Robinhood Chain and Base. The wallet that deploys becomes the factory owner, and its only power is the one-time configure call</p>
+  <div class="card">
+    <div class="row"><button class="btn em" id="connect">Connect wallet</button><span id="who" class="dim"></span></div>
+    <div class="row"><span class="dim">Factory</span><span class="st" id="fAddr">connect to compute</span></div>
+    <div class="row"><span class="dim">Router</span><span class="st" id="rAddr"></span></div>
+    <ol class="dim">
+      <li>Deploy the buyback on Robinhood Chain</li>
+      <li>On each chain: deploy the factory, deploy the router, configure</li>
+      <li>On Robinhood Chain the protocol recipient is the buyback, on Base it is the treasury wallet you enter</li>
+      <li>Allow the Universal Router on the buyback, then put the addresses into config.js</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h2>Robinhood Chain buyback</h2>
+    <div class="row"><button class="btn" data-step="buyback" disabled>Deploy buyback</button><span class="st dim" id="s-buyback"></span></div>
+    <div class="row"><button class="btn" data-step="target" disabled>Allow Universal Router</button><span class="st dim" id="s-target"></span></div>
+  </div>
+  <div class="cols">
+    <div class="card" data-col="4663">
+      <h2>Robinhood Chain</h2>
+      <div class="row"><button class="btn" data-step="factory" data-chain="4663" disabled>Deploy factory</button></div><div class="st dim" id="s-factory-4663"></div>
+      <div class="row"><button class="btn" data-step="router" data-chain="4663" disabled>Deploy router</button></div><div class="st dim" id="s-router-4663"></div>
+      <div class="row"><button class="btn" data-step="configure" data-chain="4663" disabled>Configure</button></div><div class="st dim" id="s-configure-4663"></div>
+    </div>
+    <div class="card" data-col="8453">
+      <h2>Base</h2>
+      <div class="row"><input id="treasury" placeholder="treasury wallet on Base 0x…"></div>
+      <div class="row"><button class="btn" data-step="factory" data-chain="8453" disabled>Deploy factory</button></div><div class="st dim" id="s-factory-8453"></div>
+      <div class="row"><button class="btn" data-step="router" data-chain="8453" disabled>Deploy router</button></div><div class="st dim" id="s-router-8453"></div>
+      <div class="row"><button class="btn" data-step="configure" data-chain="8453" disabled>Configure</button></div><div class="st dim" id="s-configure-8453"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>After $TWIN launches</h2>
+    <p class="dim">The buyback token can be set once. The keeper is the wallet whose key is TWIN_OPERATOR_KEY in Vercel</p>
+    <div class="row"><input id="caIn" placeholder="$TWIN contract 0x…"><button class="btn" data-step="setTwin" disabled>Set $TWIN</button></div><div class="st dim" id="s-setTwin"></div>
+    <div class="row"><input id="keeperIn" placeholder="keeper wallet 0x…"><button class="btn" data-step="setKeeper" disabled>Set keeper</button></div><div class="st dim" id="s-setKeeper"></div>
+    <pre id="out" hidden></pre>
+  </div>
+</div>
+<script type="module">
+import * as W from '/lib/wallet.js';
+import { CHAINS, CREATE2_PROXY, explorer } from '/lib/chains.js';
+import { encodeDeployData, keccak256, toBytes, concat, getAddress } from 'https://cdn.jsdelivr.net/npm/viem@2.21.55/+esm';
+const $ = id => document.getElementById(id);
+const get = n => fetch('/lib/abi/' + n + '.json?v=1').then(r => r.json());
+const [FC, RT, BB] = await Promise.all(['TwinFactory', 'TwinRouter', 'TwinBuyback'].map(get));
+const SALT_F = keccak256(toBytes('twincast.factory.v1')), SALT_R = keccak256(toBytes('twincast.router.v1'));
+const isAddr = v => /^0x[0-9a-fA-F]{40}$/.test(v || '');
+const create2 = (salt, init) => getAddress('0x' + keccak256(concat(['0xff', CREATE2_PROXY, salt, keccak256(init)])).slice(-40));
+let S = {}; try { S = JSON.parse(localStorage.getItem('twin:deploy') || '{}'); } catch {}
+const save = () => { try { localStorage.setItem('twin:deploy', JSON.stringify(S)); } catch {} };
+let plan = null;
+
+function planFor(owner) {
+  const fInit = encodeDeployData({ abi: FC.abi, bytecode: FC.bytecode, args: [owner] });
+  const factory = create2(SALT_F, fInit);
+  const rInit = encodeDeployData({ abi: RT.abi, bytecode: RT.bytecode, args: [factory] });
+  return { owner, fInit, rInit, factory, router: create2(SALT_R, rInit) };
+}
+async function hasCode(id, a) { const c = await W.pubs[id].getCode({ address: a }).catch(() => null); return !!c && c !== '0x'; }
+async function configured(id) { return W.pubs[id].readContract({ address: plan.factory, abi: FC.abi, functionName: 'configured' }).catch(() => false); }
+const okText = t => `<span class="ok">${t}</span>`;
+
+async function paint() {
+  const w = W.state();
+  $('who').textContent = w.address ? W.short(w.address) + ' · chain ' + (w.chainId || '?') : '';
+  document.querySelectorAll('[data-step]').forEach(b => b.disabled = !w.address);
+  if (!w.address) return;
+  plan = planFor(w.address);
+  $('fAddr').textContent = plan.factory; $('rAddr').textContent = plan.router;
+  if (S.buyback) $('s-buyback').innerHTML = okText(S.buyback);
+  if (S.target) $('s-target').innerHTML = okText('Universal Router allowed');
+  for (const id of [4663, 8453]) {
+    const [f, r, c] = await Promise.all([hasCode(id, plan.factory), hasCode(id, plan.router), configured(id)]);
+    if (f) $('s-factory-' + id).innerHTML = okText('factory live');
+    if (r) $('s-router-' + id).innerHTML = okText('router live');
+    if (c) $('s-configure-' + id).innerHTML = okText('configured');
+  }
+  $('out').hidden = false;
+  $('out').textContent = 'config.js\n\nwindow.TWIN_FACTORY = "' + plan.factory + '";\nwindow.TWIN_ROUTER  = "' + plan.router + '";\nwindow.TWIN_BUYBACK = "' + (S.buyback || '') + '";';
+}
+W.onChange(paint); W.restore().then(paint);
+$('connect').onclick = () => W.connect().then(paint).catch(e => alert(e.shortMessage || e.message));
+
+async function wait(el, id, tx) {
+  el.innerHTML = `sent · <a href="${explorer(id, 'tx', tx.hash)}" target="_blank" rel="noopener">tx</a> · waiting…`;
+  const rc = await tx.wait();
+  if (rc.status !== 'success') throw Error('Transaction failed');
+  return rc;
+}
+const steps = {
+  buyback: async el => {
+    if (S.buyback && !confirm('A buyback is already deployed from this browser. Deploy a new one?')) return;
+    el.textContent = 'confirm in wallet…';
+    const rc = await wait(el, 4663, await W.sendTx(4663, { data: BB.bytecode }));
+    S.buyback = rc.contractAddress; delete S.target;
+  },
+  target: async el => { el.textContent = 'confirm in wallet…'; await wait(el, 4663, await W.send(4663, { address: S.buyback, abi: BB.abi, functionName: 'setTarget', args: [CHAINS[4663].universalRouter, true] })); S.target = true; },
+  factory: async (el, id) => {
+    if (await hasCode(id, plan.factory)) return;
+    el.textContent = 'confirm in wallet…';
+    await wait(el, id, await W.sendTx(id, { to: CREATE2_PROXY, data: concat([SALT_F, plan.fInit]) }));
+    if (!(await hasCode(id, plan.factory))) throw Error('Factory not found at ' + plan.factory);
+  },
+  router: async (el, id) => {
+    if (await hasCode(id, plan.router)) return;
+    el.textContent = 'confirm in wallet…';
+    await wait(el, id, await W.sendTx(id, { to: CREATE2_PROXY, data: concat([SALT_R, plan.rInit]) }));
+    if (!(await hasCode(id, plan.router))) throw Error('Router not found at ' + plan.router);
+  },
+  configure: async (el, id) => {
+    const recipient = id === 4663 ? S.buyback : $('treasury').value.trim();
+    if (!isAddr(recipient)) throw Error(id === 4663 ? 'Deploy the buyback first' : 'Enter the treasury wallet for Base');
+    el.textContent = 'confirm in wallet…';
+    await wait(el, id, await W.send(id, { address: plan.factory, abi: FC.abi, functionName: 'configure', args: [CHAINS[id].poolManager, plan.router, recipient] }));
+  },
+  setTwin: async el => { const v = $('caIn').value.trim(); if (!isAddr(v)) throw Error('Enter the $TWIN address'); el.textContent = 'confirm in wallet…'; await wait(el, 4663, await W.send(4663, { address: S.buyback, abi: BB.abi, functionName: 'setTwin', args: [v] })); el.innerHTML = okText('$TWIN set'); },
+  setKeeper: async el => { const v = $('keeperIn').value.trim(); if (!isAddr(v)) throw Error('Enter the keeper wallet'); el.textContent = 'confirm in wallet…'; await wait(el, 4663, await W.send(4663, { address: S.buyback, abi: BB.abi, functionName: 'setKeeper', args: [v] })); el.innerHTML = okText('keeper set'); }
+};
+document.querySelectorAll('[data-step]').forEach(b => b.onclick = async () => {
+  const k = b.dataset.step, id = b.dataset.chain ? Number(b.dataset.chain) : null;
+  const el = $('s-' + k + (id ? '-' + id : ''));
+  b.disabled = true;
+  try { await steps[k](el, id); save(); } catch (e) { el.innerHTML = '<span class="bad">' + (e.shortMessage || e.message || e) + '</span>'; }
+  await paint();
+});
+</script>
+</body>
+</html>

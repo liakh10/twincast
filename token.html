@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="/config.js"></script>
+<title>Token · Twincast</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050d0a;--panel:#0b1712;--panel2:#10221a;--line:#1d3529;--ink:#e6f1eb;--dim:#8ca496;--em:#22d882;--sil:#c9d4d1;--bad:#ff7a7a;--d:'Michroma',system-ui,sans-serif;--m:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+html{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 var(--m);background-image:radial-gradient(900px 500px at 50% -20%,rgba(34,216,130,.12),transparent 60%)}
+[hidden]{display:none!important}
+a{color:inherit}
+button,input{font:inherit;color:inherit}
+.wrap{width:min(1080px,100%);margin:0 auto;padding:0 max(16px,env(safe-area-inset-left))}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font:500 13px var(--m);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn.em{background:linear-gradient(180deg,#2be68d,#12a862);border-color:#2be68d;color:#03140b;font-weight:600}
+.btn.sm{height:34px;padding:0 12px;font-size:12px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.top{border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;height:62px}
+.brand{display:flex;gap:10px;align-items:center;text-decoration:none}
+.brand img{width:30px;height:30px;border-radius:8px}
+.brand b{font:400 14px var(--d);letter-spacing:.18em}
+.top .r{margin-left:auto}
+.head{display:flex;gap:16px;align-items:center;padding:34px 0 18px;flex-wrap:wrap}
+.head img,.head i{width:84px;height:84px;border-radius:18px;object-fit:cover;background:var(--panel2);display:grid;place-items:center;font:400 30px var(--d);color:var(--em);font-style:normal;flex:none}
+.head h1{margin:0;font:400 clamp(20px,3.4vw,34px)/1.2 var(--d)}
+.head p{margin:4px 0 0;color:var(--dim);max-width:60ch}
+.ca{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:12px}
+.ca code{word-break:break-all}
+.ca code b{color:var(--em)}
+.ca button{background:none;border:1px solid var(--line);border-radius:8px;padding:2px 8px;cursor:pointer;font-size:11px}
+.tabs{display:flex;gap:8px;margin:10px 0 18px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--panel);cursor:pointer;text-align:left;min-width:170px}
+.tab small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tab b{font:400 15px var(--d)}
+.tab.on.rh{border-color:var(--em)}.tab.on.ba{border-color:var(--sil)}
+.tab.off{border-style:dashed;opacity:.6}
+.grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:14px;align-items:start;padding-bottom:60px}
+.box{border:1px solid var(--line);border-radius:16px;padding:18px;background:linear-gradient(180deg,var(--panel2),var(--panel))}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg)}
+.stat span{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.stat b{font:400 16px var(--d)}
+.bar{height:10px;border-radius:10px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin:14px 0 4px}
+.bar s{display:block;height:100%;background:linear-gradient(90deg,var(--em),var(--sil))}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:12px;margin-top:14px}
+.kv dt{color:var(--dim)}.kv dd{margin:0;word-break:break-all}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.seg button{background:none;border:0;padding:10px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--dim)}
+.seg button.on{background:var(--panel2);color:var(--em)}
+.f{display:grid;gap:5px;margin-bottom:8px}
+.f label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+.f input{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:10px 12px;outline:0}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.quick button{border:1px solid var(--line);background:none;border-radius:999px;padding:3px 10px;font-size:11px;cursor:pointer}
+.quote{font-size:12px;color:var(--dim);min-height:18px;margin:6px 0}
+.err{color:var(--bad);font-size:12px;min-height:18px;margin-top:8px}
+.wide{width:100%}
+.extend{margin-top:14px;padding:14px;border:1px dashed var(--line);border-radius:12px;font-size:12px}
+.boot{min-height:60vh;display:grid;place-items:center;color:var(--dim)}
+.wpick{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;z-index:50}
+@media (max-width:860px){.grid{grid-template-columns:1fr}.tab{min-width:0;flex:1}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="/"><img src="/assets/favicon.png" alt=""><b>TWINCAST</b></a><div class="r"><button class="btn sm em" id="connect">Connect</button></div></div></header>
+<main class="wrap" id="main"><div class="boot">Reading the token from Robinhood Chain and Base</div></main>
+
+<script type="module">
+import * as W from '/lib/wallet.js';
+import * as TW from '/lib/twin.js';
+import { CHAINS, CHAIN_IDS, explorer } from '/lib/chains.js';
+import { parseEther, formatEther } from 'https://cdn.jsdelivr.net/npm/viem@2.21.55/+esm';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const addr = (location.pathname.match(/^\/t\/(0x[0-9a-fA-F]{40})/) || [])[1] || new URLSearchParams(location.search).get('token');
+let t = null, m = {}, chain = null, side = 'buy', usd = null, bal = 0n;
+
+async function load() {
+  if (!/^0x[0-9a-fA-F]{40}$/.test(addr || '')) { $('main').innerHTML = '<div class="boot">Open a token from Twincast</div>'; return; }
+  const list = await TW.loadAll();
+  t = list.find(x => x.token.toLowerCase() === addr.toLowerCase());
+  if (!t) { $('main').innerHTML = '<div class="boot">This token was not launched through Twincast</div>'; return; }
+  m = (await TW.meta(t.uri)) || {};
+  if (!chain || !t.chains[chain]) chain = Number(Object.keys(t.chains)[0]);
+  bal = await TW.balanceOf(chain, t.token, W.state().address);
+  render();
+}
+
+function render() {
+  document.title = `${t.name} · Twincast`;
+  const r = t.chains[chain], me = W.state().address;
+  const isCreator = me && t.creator.toLowerCase() === me.toLowerCase();
+  const missing = CHAIN_IDS.filter(id => !t.chains[id]);
+  $('main').innerHTML = `
+    <div class="head">${m.image ? `<img src="${esc(m.image)}" alt="">` : `<i>${esc(t.symbol.slice(0, 1))}</i>`}
+      <div><h1>${esc(t.name)} <span style="color:var(--dim)">$${esc(t.symbol)}</span></h1>${m.description ? `<p>${esc(m.description)}</p>` : ''}
+      <div class="ca"><code>${esc(t.token.slice(0, -4))}<b>${esc(t.token.slice(-4))}</b></code><button id="copy">Copy</button>${m.x ? `<a href="${esc(m.x)}" target="_blank" rel="noopener">X</a>` : ''}${m.telegram ? `<a href="${esc(m.telegram)}" target="_blank" rel="noopener">Telegram</a>` : ''}</div></div>
+    </div>
+    <div class="tabs">${CHAIN_IDS.map(id => `<button class="tab ${id === 4663 ? 'rh' : 'ba'} ${id === chain ? 'on' : ''} ${t.chains[id] ? '' : 'off'}" data-chain="${id}" ${t.chains[id] ? '' : 'disabled'}><small>${CHAINS[id].name}</small><b>${t.chains[id] ? TW.fmtEth(t.chains[id].mcapEth) + ' ETH' : 'not launched'}</b></button>`).join('')}</div>
+    <div class="grid">
+      <div class="box">
+        <div class="stats">
+          <div class="stat"><span>Market cap</span><b>${TW.fmtEth(r.mcapEth)} ETH</b>${usd ? `<div style="font-size:11px;color:var(--dim)">$${Math.round(r.mcapEth * usd).toLocaleString('en-US')}</div>` : ''}</div>
+          <div class="stat"><span>Price</span><b>${(r.priceEth * 1e9).toFixed(3)} ETH / 1B</b></div>
+          <div class="stat"><span>Fees earned</span><b>${TW.fmtEth(TW.eth(r.ethFees + r.uncollectedEth))} ETH</b></div>
+          <div class="stat"><span>Token fees burned</span><b>${TW.fmtTok(r.tokenBurned)}</b></div>
+        </div>
+        <div class="bar"><s style="width:${Math.min(100, Math.max(1, r.progress * 100)).toFixed(1)}%"></s></div>
+        <div style="font-size:12px;color:var(--dim)">${Math.min(100, r.progress * 100).toFixed(1)}% of the curve on ${CHAINS[chain].short}</div>
+        <dl class="kv">
+          <dt>Pool</dt><dd>Uniswap v4 · ETH / $${esc(t.symbol)} · 1% fee · locked</dd>
+          <dt>Launcher</dt><dd><a href="${explorer(chain, 'address', t.creator)}" target="_blank" rel="noopener">${TW.short(t.creator)}</a></dd>
+          <dt>Fee wallet</dt><dd>${TW.short(r.feeTo)}</dd>
+          <dt>Uncollected</dt><dd>${TW.fmtEth(TW.eth(r.uncollectedEth))} ETH <button class="btn sm" id="collect">Collect</button></dd>
+          <dt>Links</dt><dd><a href="${explorer(chain, 'token', t.token)}" target="_blank" rel="noopener">Explorer</a> · <a href="https://dexscreener.com/${CHAINS[chain].dex}/${t.token}" target="_blank" rel="noopener">DexScreener</a></dd>
+        </dl>
+        ${isCreator && missing.length ? `<div class="extend">You launched this token. Put it on ${missing.map(id => CHAINS[id].name).join(' and ')} at the same address<br><br><button class="btn em" id="extend" data-chain="${missing[0]}">Launch on ${CHAINS[missing[0]].short}</button></div>` : ''}
+        ${isCreator ? `<div class="extend">Send your future fee share on ${CHAINS[chain].short} to another wallet<div style="display:flex;gap:8px;margin-top:8px"><input id="feeTo" placeholder="0x…" style="flex:1;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:8px 10px;min-width:0"><button class="btn sm" id="setFeeTo">Save</button></div></div>` : ''}
+        <div class="err" id="err1"></div>
+      </div>
+      <div class="box">
+        <div class="seg"><button data-side="buy" class="${side === 'buy' ? 'on' : ''}">Buy</button><button data-side="sell" class="${side === 'sell' ? 'on' : ''}">Sell</button></div>
+        <div class="f"><label for="amt">${side === 'buy' ? 'ETH on ' + CHAINS[chain].short : '$' + esc(t.symbol) + ' on ' + CHAINS[chain].short}</label><input id="amt" type="number" min="0" step="any" inputmode="decimal"></div>
+        <div class="quick">${side === 'buy' ? ['0.01', '0.05', '0.1', '0.5'].map(v => `<button data-q="${v}">${v}</button>`).join('') : ['25', '50', '100'].map(v => `<button data-p="${v}">${v === '100' ? 'Max' : v + '%'}</button>`).join('')}</div>
+        <div class="quote" id="quote">${me ? `You hold ${TW.fmtTok(bal)} on ${CHAINS[chain].short}` : ''}</div>
+        <button class="btn em wide" id="go">${side === 'buy' ? 'Buy' : 'Sell'} on ${CHAINS[chain].short}</button>
+        <div class="err" id="err2"></div>
+        <div style="font-size:11px;color:var(--dim);margin-top:8px">3% slippage limit. Each chain has its own pool and its own price</div>
+      </div>
+    </div>`;
+  wire();
+}
+
+function wire() {
+  $('copy').onclick = async () => { try { await navigator.clipboard.writeText(t.token); $('copy').textContent = 'Copied'; } catch {} };
+  document.querySelectorAll('[data-chain].tab').forEach(b => b.onclick = async () => { chain = Number(b.dataset.chain); bal = await TW.balanceOf(chain, t.token, W.state().address); render(); });
+  document.querySelectorAll('[data-side]').forEach(b => b.onclick = () => { side = b.dataset.side; render(); });
+  document.querySelectorAll('[data-q]').forEach(b => b.onclick = () => { $('amt').value = b.dataset.q; quote(); });
+  document.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { $('amt').value = formatEther(bal * BigInt(b.dataset.p) / 100n); quote(); });
+  let qt = 0;
+  $('amt').oninput = () => { clearTimeout(qt); qt = setTimeout(quote, 300); };
+  $('go').onclick = trade;
+  $('collect').onclick = () => act($('collect'), 'err1', s => TW.collectFees(chain, t.token, s));
+  if ($('extend')) $('extend').onclick = extend;
+  if ($('setFeeTo')) $('setFeeTo').onclick = () => {
+    const v = $('feeTo').value.trim();
+    if (!/^0x[0-9a-fA-F]{40}$/.test(v)) { $('err1').textContent = 'Enter a wallet address'; return; }
+    act($('setFeeTo'), 'err1', s => TW.setFeeTo(chain, t.token, v, s));
+  };
+}
+
+async function quote() {
+  const v = $('amt').value;
+  if (!v || !(Number(v) > 0)) return;
+  try {
+    const a = parseEther(v);
+    if (side === 'buy') $('quote').textContent = `You get about ${TW.fmtTok(await TW.quoteBuy(chain, t.token, a))} $${t.symbol}`;
+    else if (W.state().address) $('quote').textContent = `You get about ${TW.fmtEth(TW.eth(await TW.quoteSell(chain, t.token, a)))} ETH`;
+    else $('quote').textContent = 'Connect to quote a sell';
+  } catch (e) { $('quote').textContent = 'No quote: ' + (e.shortMessage || e.message).slice(0, 80); }
+}
+async function act(btn, errId, fn) {
+  const label = btn.textContent;
+  btn.disabled = true; $(errId).textContent = '';
+  try { if (!W.state().address) await W.connect(); await fn(s => { btn.textContent = s; }); await load(); }
+  catch (e) { $(errId).textContent = e.shortMessage || e.message; btn.textContent = label; btn.disabled = false; }
+}
+function trade() {
+  let a;
+  try { a = parseEther($('amt').value || '0'); } catch { $('err2').textContent = 'Enter a valid amount'; return; }
+  if (a <= 0n) { $('err2').textContent = 'Enter an amount'; return; }
+  act($('go'), 'err2', s => side === 'buy' ? TW.buy(chain, t.token, a, 300, s) : TW.sell(chain, t.token, a, 300, s));
+}
+async function extend() {
+  const target = Number($('extend').dataset.chain), from = Number(Object.keys(t.chains)[0]);
+  act($('extend'), 'err1', async s => {
+    s('Finding the original salt');
+    const { userSalt, creator } = await TW.launchSalt(from, t.token, t.chains[from].createdAt);
+    if (creator.toLowerCase() !== W.state().address.toLowerCase()) throw Error('Only the launcher wallet can extend this token');
+    const predicted = await TW.predict(creator, userSalt, t.name, t.symbol, t.uri);
+    if (predicted.toLowerCase() !== t.token.toLowerCase()) throw Error('The address would not match, launch cancelled');
+    const token = await TW.launch(target, { name: t.name, symbol: t.symbol, uri: t.uri, userSalt, devEth: 0n }, s);
+    if (!token || token.toLowerCase() !== t.token.toLowerCase()) throw Error('Launched at an unexpected address');
+    chain = target;
+  });
+}
+
+$('connect').onclick = () => W.connect().catch(() => {});
+W.onChange(async s => { $('connect').textContent = s.address ? W.short(s.address) : 'Connect'; if (t) { bal = await TW.balanceOf(chain, t.token, s.address); render(); } });
+W.restore();
+TW.ethUsd().then(v => { usd = v; if (t) render(); });
+load().catch(e => { $('main').innerHTML = `<div class="boot">${esc(e.shortMessage || e.message)}</div>`; });
+setInterval(() => { if (!document.hidden && t && !document.activeElement.matches('input')) load().catch(() => {}); }, 25000);
+</script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="/config.js"></script>
+<title>Twincast</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Twincast: launch one token on Robinhood Chain and Base with the same address, liquidity locked in Uniswap v4 on both chains and a fee split written in the contract">
+<meta property="og:title" content="Twincast">
+<meta property="og:image" content="/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050d0a;--panel:#0b1712;--panel2:#10221a;--line:#1d3529;--ink:#e6f1eb;--dim:#8ca496;--em:#22d882;--em2:#0f9d5c;--sil:#c9d4d1;--sil2:#8f9b98;--bad:#ff7a7a;--d:'Michroma',system-ui,sans-serif;--m:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+html{overflow-x:hidden;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 var(--m);background-image:radial-gradient(900px 500px at 15% -10%,rgba(34,216,130,.14),transparent 60%),radial-gradient(900px 500px at 85% -10%,rgba(201,212,209,.1),transparent 60%)}
+[hidden]{display:none!important}
+a{color:inherit}
+img{max-width:100%;display:block}
+button,input,textarea{font:inherit;color:inherit}
+.wrap{width:min(1180px,100%);margin:0 auto;padding:0 max(16px,env(safe-area-inset-left))}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:500 13px var(--m);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--em)}
+.btn.em{background:linear-gradient(180deg,#2be68d,#12a862);border-color:#2be68d;color:#03140b;font-weight:600}
+.btn.sil{background:linear-gradient(180deg,#e9efed,#a9b5b2);border-color:#e9efed;color:#0b1712;font-weight:600}
+.btn.sm{height:34px;padding:0 12px;font-size:12px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.top{position:sticky;top:0;z-index:20;background:rgba(5,13,10,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:18px;height:62px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand img{width:32px;height:32px;border-radius:8px}
+.brand b{font:400 15px var(--d);letter-spacing:.18em}
+.top nav{display:flex;gap:18px;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.top nav a{text-decoration:none;color:var(--dim)}
+.top nav a:hover{color:var(--em)}
+.top .r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.icon{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);display:grid;place-items:center}
+.hero{padding:70px 0 60px;text-align:center}
+.hero h1{margin:0;font:400 clamp(28px,5.6vw,68px)/1.12 var(--d);letter-spacing:.02em}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--em),var(--sil));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:18px auto 0;max-width:58ch;color:var(--dim)}
+.cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.mirror{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;margin:48px auto 0;max-width:900px}
+.side{border:1px solid var(--line);border-radius:16px;padding:18px;text-align:left;background:linear-gradient(180deg,var(--panel2),var(--panel))}
+.side.rh{box-shadow:inset 0 0 0 1px rgba(34,216,130,.15),0 0 40px rgba(34,216,130,.08)}
+.side.ba{box-shadow:inset 0 0 0 1px rgba(201,212,209,.15),0 0 40px rgba(201,212,209,.06)}
+.side small{display:flex;align-items:center;gap:8px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--dim)}
+.side small i{width:8px;height:8px;border-radius:50%}
+.side.rh small i{background:var(--em)}.side.ba small i{background:var(--sil)}
+.side code{display:block;margin-top:10px;font:500 clamp(11px,1.5vw,15px) var(--m);word-break:break-all;min-height:2.6em}
+.side code b{color:var(--em)}
+.side.ba code b{color:var(--sil)}
+.eq{font:400 22px var(--d);color:var(--dim)}
+section.band{padding:64px 0;border-top:1px solid var(--line);scroll-margin-top:62px}
+.sh{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.sh h2{margin:0;font:400 clamp(22px,3vw,34px)/1.2 var(--d);letter-spacing:.04em}
+.sh p{margin:0;color:var(--dim);max-width:56ch}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{background:none;border:0;padding:8px 12px;font-size:12px;cursor:pointer;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.seg button.on{background:var(--panel2);color:var(--em)}
+.search{flex:1;min-width:180px;height:36px;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:0 12px;outline:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{display:block;text-decoration:none;border:1px solid var(--line);border-radius:14px;padding:14px;background:linear-gradient(180deg,var(--panel2),var(--panel))}
+.card:hover{border-color:var(--em)}
+.ct{display:flex;gap:10px;align-items:center;min-width:0}
+.ct img,.ct i{width:44px;height:44px;border-radius:10px;flex:none;object-fit:cover;background:var(--panel2);display:grid;place-items:center;font-style:normal;color:var(--em)}
+.ct div{min-width:0}
+.ct b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct small{color:var(--dim)}
+.badges{display:flex;gap:6px;margin:10px 0 8px}
+.badge{font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:999px;border:1px solid}
+.badge.rh{color:var(--em);border-color:rgba(34,216,130,.5)}
+.badge.ba{color:var(--sil);border-color:rgba(201,212,209,.5)}
+.badge.off{border-style:dashed;opacity:.45}
+.rows{display:grid;gap:4px;font-size:12px}
+.rows div{display:flex;justify-content:space-between;gap:8px}
+.rows span{color:var(--dim)}
+.addr{font-size:11px;color:var(--dim);margin-top:8px}
+.addr b{color:var(--em);font-weight:500}
+.empty{padding:36px;text-align:center;color:var(--dim);grid-column:1/-1;border:1px dashed var(--line);border-radius:14px}
+.launch{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:18px;align-items:start}
+.box{border:1px solid var(--line);border-radius:16px;padding:18px;background:linear-gradient(180deg,var(--panel2),var(--panel))}
+.f{display:grid;gap:5px;margin-bottom:12px}
+.f label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+.f input,.f textarea{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:10px 12px;outline:0;min-width:0}
+.f input:focus,.f textarea:focus{border-color:var(--em)}
+.f textarea{min-height:70px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chains{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chainpick{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;display:grid;gap:8px}
+.chainpick.on.rh{border-color:var(--em)}.chainpick.on.ba{border-color:var(--sil)}
+.chainpick .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.chainpick input[type=number]{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:7px 10px}
+.check{width:18px;height:18px;border-radius:5px;border:1px solid var(--line);display:grid;place-items:center;font-size:12px}
+.chainpick.on .check{background:var(--em);color:#03140b;border-color:var(--em)}
+.chainpick.on.ba .check{background:var(--sil)}
+.preview{position:sticky;top:80px}
+.pv-card{display:flex;gap:12px;align-items:center}
+.pv-card .logo{width:64px;height:64px;border-radius:14px;background:var(--bg) center/cover;border:1px solid var(--line);flex:none}
+.pv-addr{margin-top:14px;padding:12px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-size:12px;word-break:break-all}
+.pv-addr b{color:var(--em)}
+.steps{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:6px;font-size:12px}
+.steps li{display:flex;gap:8px;align-items:baseline;color:var(--dim)}
+.steps li.ok{color:var(--em)}.steps li.bad{color:var(--bad)}.steps li.now{color:var(--ink)}
+.steps a{color:inherit}
+.note{font-size:12px;color:var(--dim);margin-top:10px}
+.err{color:var(--bad);font-size:12px;min-height:18px;margin-top:8px}
+.fees{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fee b{display:block;font:400 22px var(--d);margin:6px 0 10px}
+.mylist{margin-top:14px;display:grid;gap:8px}
+.myrow{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px}
+.how{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.how div{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--panel)}
+.how b{font:400 18px var(--d);color:var(--em)}
+.how h4{margin:8px 0 4px;font:400 14px var(--d);letter-spacing:.04em}
+.how p{margin:0;font-size:12px;color:var(--dim)}
+.final{padding:80px 0 100px;border-top:1px solid var(--line)}
+.plate{position:relative;width:min(760px,100%);margin:0 auto;text-align:center;cursor:pointer}
+.plate .t{font:400 clamp(34px,7vw,74px)/1 var(--d);letter-spacing:.06em;background:linear-gradient(180deg,#f1f6f4,#8f9b98);-webkit-background-clip:text;background-clip:text;color:transparent}
+.plate .lab{margin-top:22px;font-size:11px;letter-spacing:.3em;color:var(--dim)}
+.plate .ca{position:relative;margin-top:10px;font:500 clamp(11px,2.7vw,19px) var(--m);white-space:nowrap}
+.plate .ca.real{color:var(--em);text-shadow:0 0 14px rgba(34,216,130,.55)}
+.plate .ca.soon{font:400 42px var(--d);color:var(--em)}
+.plate .refl{transform:scaleY(-1);opacity:.18;filter:blur(1px);-webkit-mask-image:linear-gradient(transparent 30%,#000);mask-image:linear-gradient(transparent 30%,#000);pointer-events:none;margin-top:2px}
+.plate .copy{margin-top:6px;background:none;border:0;color:var(--em);font:500 12px var(--m);letter-spacing:.14em;cursor:pointer}
+.plate .links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.plate .ca span{display:inline-block;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s}
+.plate:not(.in) .ca span{transform:rotateX(90deg);opacity:0}
+.wpick{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;z-index:50}
+@media (max-width:960px){.launch{grid-template-columns:1fr}.preview{position:static}.how{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.top nav{display:none}.top .buy{display:none}.brand b{font-size:12px;letter-spacing:.12em}.mirror{grid-template-columns:1fr}.eq{transform:rotate(90deg);justify-self:center}.two,.chains,.fees{grid-template-columns:1fr}.how{grid-template-columns:1fr}.hero{padding:40px 0 40px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}.plate:not(.in) .ca span{transform:none;opacity:1}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/favicon.png" alt=""><b>TWINCAST</b></a>
+  <nav><a href="#explore">Explore</a><a href="#launch">Launch</a><a href="#fees">Fees</a><a href="/docs">Docs</a></nav>
+  <div class="r">
+    <a class="icon" id="xTop" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a class="btn sm buy" id="buyTop" target="_blank" rel="noopener">Buy $TWIN</a>
+    <button class="btn sm em" id="connect">Connect</button>
+  </div>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <h1>One launch, <em>two chains</em></h1>
+  <p>Launch a token on Robinhood Chain and Base with the same address on both, liquidity locked in Uniswap v4 and a fee split written in the contract</p>
+  <div class="cta"><a class="btn em" href="#launch">Launch a token</a><a class="btn" href="#explore">Explore</a></div>
+  <div class="mirror">
+    <div class="side rh"><small><i></i>Robinhood Chain</small><code id="mirA"></code></div>
+    <div class="eq">=</div>
+    <div class="side ba"><small><i></i>Base</small><code id="mirB"></code></div>
+  </div>
+</div></section>
+
+<section class="band" id="explore"><div class="wrap">
+  <div class="sh"><h2>Explore</h2><p>Every token launched through the Twincast factory, read from both chains</p></div>
+  <div class="filters">
+    <div class="seg" id="fChain"><button data-v="all" class="on">All</button><button data-v="both">Both</button><button data-v="4663">Robinhood</button><button data-v="8453">Base</button></div>
+    <div class="seg" id="fSort"><button data-v="new" class="on">Newest</button><button data-v="cap">Cap</button></div>
+    <input class="search" id="q" placeholder="Search name, ticker or address">
+  </div>
+  <div class="grid" id="tokens"><div class="empty">Loading tokens</div></div>
+</div></section>
+
+<section class="band" id="launch"><div class="wrap">
+  <div class="sh"><h2>Launch</h2><p>Your token gets an address ending in 2222 and lands on the same address on every chain you pick. Only your wallet can ever launch it on the other chain</p></div>
+  <div class="launch">
+    <div class="box">
+      <div class="two"><div class="f"><label for="lName">Name</label><input id="lName" maxlength="40" placeholder="Twin Cat"></div><div class="f"><label for="lSym">Ticker</label><input id="lSym" maxlength="10" placeholder="TCAT"></div></div>
+      <div class="f"><label for="lDesc">Description</label><textarea id="lDesc" maxlength="500"></textarea></div>
+      <div class="f"><label for="lLogo">Logo</label><input id="lLogo" type="file" accept="image/png,image/jpeg,image/webp"></div>
+      <div class="two"><div class="f"><label for="lX">X</label><input id="lX" placeholder="https://x.com/…"></div><div class="f"><label for="lTg">Telegram</label><input id="lTg" placeholder="https://t.me/…"></div></div>
+      <div class="f"><label>Chains and first buy in ETH</label>
+        <div class="chains">
+          <div class="chainpick rh on" data-chain="4663"><div class="row"><b>Robinhood Chain</b><span class="check">✓</span></div><input type="number" min="0" step="0.001" placeholder="first buy, optional" data-buy="4663"></div>
+          <div class="chainpick ba on" data-chain="8453"><div class="row"><b>Base</b><span class="check">✓</span></div><input type="number" min="0" step="0.001" placeholder="first buy, optional" data-buy="8453"></div>
+        </div>
+      </div>
+      <div class="note">Curve: opens near a 1 ETH market cap on each chain, 800M tokens on the curve up to about 16 ETH, 200M above it. Pool fee 1%, split 50% to you and 50% to the protocol. Each chain has its own pool and its own price</div>
+      <div class="cta" style="justify-content:flex-start"><button class="btn em" id="lGo">Find twin address</button><button class="btn" id="lReset" hidden>Start over</button></div>
+      <div class="err" id="lErr"></div>
+    </div>
+    <div class="box preview">
+      <div class="pv-card"><div class="logo" id="pvLogo"></div><div><b id="pvName">Your token</b><br><small id="pvSym" style="color:var(--dim)">$TICKER</small></div></div>
+      <div class="pv-addr" id="pvAddr">The address appears here once it is found</div>
+      <ul class="steps" id="steps"></ul>
+    </div>
+  </div>
+</div></section>
+
+<section class="band" id="fees"><div class="wrap">
+  <div class="sh"><h2>Fees</h2><p>Half of every pool fee belongs to the launcher. Anyone can collect a pool, then you claim your ETH on each chain</p></div>
+  <div class="fees">
+    <div class="box fee"><small style="color:var(--em)">ROBINHOOD CHAIN</small><b id="cl4663">·</b><button class="btn sm" data-claim="4663" disabled>Claim</button></div>
+    <div class="box fee"><small style="color:var(--sil)">BASE</small><b id="cl8453">·</b><button class="btn sm" data-claim="8453" disabled>Claim</button></div>
+  </div>
+  <div class="mylist" id="mine"></div>
+  <div class="err" id="fErr"></div>
+</div></section>
+
+<section class="band"><div class="wrap">
+  <div class="sh"><h2>How it works</h2><a class="btn sm" href="/docs">Docs</a></div>
+  <div class="how">
+    <div><b>01</b><h4>Same factory</h4><p>The factory and router sit at the same address on Robinhood Chain and Base, deployed with CREATE2</p></div>
+    <div><b>02</b><h4>Same address</h4><p>Your token address comes from your wallet and a salt, so it matches on both chains and nobody else can take it</p></div>
+    <div><b>03</b><h4>Locked pools</h4><p>All supply goes into a Uniswap v4 pool against ETH on each chain, and the factory has no way to remove it</p></div>
+    <div><b>04</b><h4>Fees in code</h4><p>1% per trade, 50% to the launcher and 50% to the protocol, on Robinhood Chain that half buys back and burns $TWIN</p></div>
+  </div>
+</div></section>
+
+<section class="final"><div class="wrap">
+  <div class="plate" id="plate" role="button" tabindex="0" aria-label="Copy contract address">
+    <div class="t">$TWIN</div>
+    <div class="lab">CONTRACT</div>
+    <div class="ca" id="caAddr"></div>
+    <div class="ca refl" id="caRefl" aria-hidden="true"></div>
+    <button class="copy" id="caCopy" type="button">[ COPY ]</button>
+    <div class="links">
+      <a class="btn em" id="buyLink" target="_blank" rel="noopener">Buy</a>
+      <a class="btn" id="xLink" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      <a class="btn sil" id="chartLink" target="_blank" rel="noopener">Chart</a>
+    </div>
+  </div>
+</div></section>
+
+<script type="module">
+import * as W from '/lib/wallet.js';
+import * as TW from '/lib/twin.js';
+import { CHAINS, CHAIN_IDS, explorer } from '/lib/chains.js';
+import { parseEther } from 'https://cdn.jsdelivr.net/npm/viem@2.21.55/+esm';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const S = window.SITE, CA = /^0x[0-9a-fA-F]{40}$/.test(S.CA) ? S.CA : null;
+const tail = a => esc(a.slice(0, -4)) + '<b>' + esc(a.slice(-4)) + '</b>';
+
+/* links and the contract plate */
+$('xTop').href = $('xLink').href = S.X_URL;
+$('buyTop').href = $('buyLink').href = CA ? 'https://www.ponsfamily.com/launchpad/' + CA : window.PONS_HOME;
+$('chartLink').href = CA ? 'https://dexscreener.com/robinhood/' + CA : window.DEX_HOME;
+const caText = CA || 'soon';
+for (const id of ['caAddr', 'caRefl']) { $(id).classList.add(CA ? 'real' : 'soon'); $(id).innerHTML = [...caText].map((c, i) => `<span style="transition-delay:${i * 18}ms">${c}</span>`).join(''); }
+new IntersectionObserver((es, io) => { if (es[0].isIntersecting) { $('plate').classList.add('in'); io.disconnect(); } }, { threshold: .4 }).observe($('plate'));
+async function copyCA(e) {
+  if (e) e.stopPropagation();
+  const b = $('caCopy');
+  if (!CA) b.textContent = '[ NOT YET ]'; else { try { await navigator.clipboard.writeText(CA); b.textContent = '[ COPIED ]'; } catch { b.textContent = '[ COPY FAILED ]'; } }
+  setTimeout(() => b.textContent = '[ COPY ]', 1400);
+}
+$('caCopy').onclick = copyCA;
+$('plate').addEventListener('click', e => { if (!e.target.closest('a')) copyCA(); });
+$('plate').addEventListener('keydown', e => { if (e.key === 'Enter') copyCA(); });
+
+/* hero mirror: the same address typed on both sides */
+function typeMirror(address) {
+  const full = address;
+  let i = 0;
+  clearInterval(typeMirror.t);
+  typeMirror.t = setInterval(() => {
+    i++;
+    const part = full.slice(0, i);
+    const html = i >= full.length ? tail(full) : esc(part);
+    $('mirA').innerHTML = html; $('mirB').innerHTML = html;
+    if (i >= full.length) clearInterval(typeMirror.t);
+  }, 38);
+}
+typeMirror('0x690736e13Ee48Fd1423fef9F584ef06492222222'.slice(0, 38) + '2222');
+
+/* explore */
+let all = [], metas = {}, fChain = 'all', fSort = 'new';
+async function loadTokens() {
+  if (!TW.FACTORY) { $('tokens').innerHTML = '<div class="empty">Tokens show up here once the factory is live on both chains</div>'; return; }
+  try {
+    all = await TW.loadAll();
+    await Promise.all(all.map(async t => { if (!(t.uri in metas)) metas[t.uri] = await TW.meta(t.uri); }));
+    if (all[0]) typeMirror(all[0].token);
+    renderTokens();
+    loadMine();
+  } catch (e) { $('tokens').innerHTML = `<div class="empty">Could not read the factory: ${esc(e.shortMessage || e.message)}</div>`; }
+}
+function renderTokens() {
+  const q = $('q').value.trim().toLowerCase();
+  let list = all.filter(t => {
+    const on = Object.keys(t.chains).map(Number);
+    if (fChain === 'both' && on.length < 2) return false;
+    if (fChain === '4663' && !on.includes(4663)) return false;
+    if (fChain === '8453' && !on.includes(8453)) return false;
+    return !q || t.name.toLowerCase().includes(q) || t.symbol.toLowerCase().includes(q) || t.token.toLowerCase().includes(q);
+  });
+  if (fSort === 'cap') list = list.slice().sort((a, b) => Math.max(...Object.values(b.chains).map(r => r.mcapEth || 0)) - Math.max(...Object.values(a.chains).map(r => r.mcapEth || 0)));
+  $('tokens').innerHTML = list.length ? list.map(t => {
+    const m = metas[t.uri] || {};
+    const rows = CHAIN_IDS.map(id => t.chains[id] ? `<div><span>${CHAINS[id].short}</span><b>${TW.fmtEth(t.chains[id].mcapEth)} ETH · ${Math.min(100, t.chains[id].progress * 100).toFixed(0)}%</b></div>` : '').join('');
+    return `<a class="card" href="/t/${t.token}">
+      <div class="ct">${m.image ? `<img src="${esc(m.image)}" alt="">` : `<i>${esc(t.symbol.slice(0, 1))}</i>`}<div><b>${esc(t.name)}</b><small>$${esc(t.symbol)}</small></div></div>
+      <div class="badges"><span class="badge rh ${t.chains[4663] ? '' : 'off'}">Robinhood</span><span class="badge ba ${t.chains[8453] ? '' : 'off'}">Base</span></div>
+      <div class="rows">${rows}</div>
+      <div class="addr">${tail(t.token)}</div>
+    </a>`;
+  }).join('') : '<div class="empty">No tokens here yet</div>';
+}
+for (const [id, set] of [['fChain', v => fChain = v], ['fSort', v => fSort = v]]) {
+  $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; set(b.dataset.v); $(id).querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); renderTokens(); });
+}
+$('q').addEventListener('input', renderTokens);
+
+/* launch */
+const PENDING = 'twin:pending';
+let pending = null;
+try { pending = JSON.parse(localStorage.getItem(PENDING) || 'null'); } catch {}
+const savePending = () => { try { pending ? localStorage.setItem(PENDING, JSON.stringify(pending)) : localStorage.removeItem(PENDING); } catch {} };
+let logoData = '';
+document.querySelectorAll('.chainpick').forEach(el => el.addEventListener('click', e => { if (e.target.tagName === 'INPUT' || pending) return; el.classList.toggle('on'); }));
+$('lName').oninput = $('lSym').oninput = () => { $('pvName').textContent = $('lName').value || 'Your token'; $('pvSym').textContent = '$' + ($('lSym').value.toUpperCase() || 'TICKER'); };
+$('lLogo').onchange = async e => { try { logoData = await TW.toWebp(e.target.files[0]); $('pvLogo').style.backgroundImage = `url("${logoData}")`; } catch (err) { $('lErr').textContent = err.message; } };
+
+function steps(list) { $('steps').innerHTML = list.map(s => `<li class="${s.c || ''}">${s.c === 'ok' ? '✓' : s.c === 'bad' ? '×' : '·'} <span>${s.t}</span></li>`).join(''); }
+function paintPending() {
+  if (!pending) { $('lReset').hidden = true; $('lGo').textContent = 'Find twin address'; return; }
+  $('lReset').hidden = false;
+  $('pvName').textContent = pending.name; $('pvSym').textContent = '$' + pending.symbol;
+  if (pending.image) $('pvLogo').style.backgroundImage = `url("${pending.image}")`;
+  if (pending.address) $('pvAddr').innerHTML = tail(pending.address);
+  const list = [{ t: 'Metadata stored', c: 'ok' }, { t: pending.address ? 'Twin address found' : 'Looking for an address', c: pending.address ? 'ok' : 'now' }];
+  for (const id of pending.chains) {
+    const d = pending.done[id];
+    list.push({ t: d ? `Live on ${CHAINS[id].short} · <a href="${explorer(id, 'token', pending.address)}" target="_blank" rel="noopener">explorer</a>` : `Launch on ${CHAINS[id].short}`, c: d ? 'ok' : '' });
+  }
+  const left = pending.chains.filter(id => !pending.done[id]);
+  steps(list);
+  $('lGo').textContent = !pending.address ? 'Find twin address' : left.length ? `Launch on ${left.map(id => CHAINS[id].short).join(' and ')}` : 'Open token';
+}
+$('lReset').onclick = () => { pending = null; savePending(); $('pvAddr').textContent = 'The address appears here once it is found'; steps([]); paintPending(); };
+
+$('lGo').onclick = async () => {
+  const b = $('lGo'), err = $('lErr');
+  err.textContent = '';
+  try {
+    if (pending && pending.address && pending.chains.every(id => pending.done[id])) { location.href = '/t/' + pending.address; return; }
+    if (!TW.FACTORY) throw Error('Twincast is not deployed yet');
+    if (!W.state().address) await W.connect();
+    const me = W.state().address;
+    b.disabled = true;
+    if (!pending) {
+      const name = $('lName').value.trim(), symbol = $('lSym').value.trim().toUpperCase();
+      if (!name || !/^[A-Z0-9]{2,10}$/.test(symbol)) throw Error('Name and a 2 to 10 character ticker are required');
+      if (!logoData) throw Error('Add a logo');
+      const chains = [...document.querySelectorAll('.chainpick.on')].map(el => Number(el.dataset.chain));
+      if (!chains.length) throw Error('Pick at least one chain');
+      const buys = {};
+      for (const id of chains) { const v = document.querySelector(`[data-buy="${id}"]`).value; buys[id] = v ? String(parseEther(v)) : '0'; }
+      b.textContent = 'Storing metadata';
+      const m = await TW.uploadMeta({ name, symbol, description: $('lDesc').value, image: logoData, x: $('lX').value, telegram: $('lTg').value });
+      pending = { launcher: me, name, symbol, uri: m.uri, image: m.meta.image, chains, buys, done: {} };
+      savePending(); paintPending();
+    }
+    if (pending.launcher.toLowerCase() !== me.toLowerCase()) throw Error('This launch was prepared by another wallet, switch back or start over');
+    if (!pending.address) {
+      const t0 = Date.now();
+      const r = await TW.mineSalt(pending, n => { b.textContent = `Searching ${(n / 1000).toFixed(0)}K addresses`; });
+      const check = await TW.predict(pending.launcher, r.userSalt, pending.name, pending.symbol, pending.uri);
+      if (check.toLowerCase() !== r.address.toLowerCase()) throw Error('Address check failed, start over');
+      Object.assign(pending, { userSalt: r.userSalt, address: check });
+      savePending(); paintPending();
+      console.log('twin address found in', Date.now() - t0, 'ms');
+    }
+    for (const id of pending.chains) {
+      if (pending.done[id]) continue;
+      const token = await TW.launch(id, { name: pending.name, symbol: pending.symbol, uri: pending.uri, userSalt: pending.userSalt, devEth: BigInt(pending.buys[id] || '0') }, t => { b.textContent = t; });
+      if (!token || token.toLowerCase() !== pending.address.toLowerCase()) throw Error(`Launched on ${CHAINS[id].short} at an unexpected address ${token}`);
+      pending.done[id] = true;
+      savePending(); paintPending();
+    }
+    loadTokens();
+  } catch (e) { err.textContent = e.shortMessage || e.message; }
+  finally { b.disabled = false; paintPending(); }
+};
+paintPending();
+
+/* fees */
+async function loadMine() {
+  const me = W.state().address;
+  $('connect').textContent = me ? W.short(me) : 'Connect';
+  for (const id of CHAIN_IDS) {
+    const c = me ? await TW.claimable(id, me) : 0n;
+    $('cl' + id).textContent = me ? TW.fmtEth(TW.eth(c)) + ' ETH' : 'Connect';
+    const btn = document.querySelector(`[data-claim="${id}"]`);
+    btn.disabled = !me || c === 0n;
+  }
+  const mine = me ? all.filter(t => t.creator.toLowerCase() === me.toLowerCase()) : [];
+  $('mine').innerHTML = mine.map(t => `<div class="myrow"><span><b>${esc(t.name)}</b> $${esc(t.symbol)}</span><span>${CHAIN_IDS.filter(id => t.chains[id]).map(id => `${CHAINS[id].short} uncollected ${TW.fmtEth(TW.eth(t.chains[id].uncollectedEth))} ETH <button class="btn sm" data-collect="${id}:${t.token}">Collect</button>`).join(' · ')}</span></div>`).join('');
+}
+document.addEventListener('click', async e => {
+  const c = e.target.closest('[data-claim]'), k = e.target.closest('[data-collect]');
+  if (!c && !k) return;
+  const b = c || k, label = b.textContent;
+  b.disabled = true; $('fErr').textContent = '';
+  try {
+    if (c) await TW.claim(Number(c.dataset.claim), t => { b.textContent = t; });
+    else { const [id, token] = k.dataset.collect.split(':'); await TW.collectFees(Number(id), token, t => { b.textContent = t; }); }
+    await loadTokens();
+  } catch (err) { $('fErr').textContent = err.shortMessage || err.message; }
+  finally { b.textContent = label; b.disabled = false; }
+});
+$('connect').onclick = () => W.connect().catch(e => { $('lErr').textContent = e.shortMessage || e.message; });
+W.onChange(loadMine);
+W.restore().then(loadMine);
+loadTokens();
+setInterval(() => { if (!document.hidden) loadTokens(); }, 30000);
+fetch('/api/tick').catch(() => {});
+</script>
+</body>
+</html>
