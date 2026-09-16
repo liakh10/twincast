@@ -91,6 +91,12 @@ section.band{padding:64px 0;border-top:1px solid var(--line);scroll-margin-top:6
 .f input,.f textarea{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:10px 12px;outline:0;min-width:0}
 .f input:focus,.f textarea:focus{border-color:var(--em)}
 .f textarea{min-height:70px;resize:vertical}
+/* the native file input speaks the browser's language and cannot be styled, so it is hidden behind a button */
+.file{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:8px 8px 8px 8px;min-width:0}
+.file input[type=file]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.file .btn{height:34px;padding:0 14px;font-size:12px;flex:none}
+.file span{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:none;letter-spacing:0}
+.file:focus-within{border-color:var(--em)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .chains{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .chainpick{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;display:grid;gap:8px}
@@ -176,7 +182,8 @@ section.band{padding:64px 0;border-top:1px solid var(--line);scroll-margin-top:6
     <div class="box">
       <div class="two"><div class="f"><label for="lName">Name</label><input id="lName" maxlength="40" placeholder="Twin Cat"></div><div class="f"><label for="lSym">Ticker</label><input id="lSym" maxlength="10" placeholder="TCAT"></div></div>
       <div class="f"><label for="lDesc">Description</label><textarea id="lDesc" maxlength="500"></textarea></div>
-      <div class="f"><label for="lLogo">Logo</label><input id="lLogo" type="file" accept="image/png,image/jpeg,image/webp"></div>
+      <div class="f"><label for="lLogo">Logo</label>
+        <div class="file"><input id="lLogo" type="file" accept="image/png,image/jpeg,image/webp"><label class="btn" for="lLogo">Choose image</label><span id="lLogoName">PNG, JPG or WebP, square</span></div></div>
       <div class="two"><div class="f"><label for="lX">X</label><input id="lX" placeholder="https://x.com/…"></div><div class="f"><label for="lTg">Telegram</label><input id="lTg" placeholder="https://t.me/…"></div></div>
       <div class="f"><label>Chains and first buy in ETH</label>
         <div class="chains">
@@ -320,7 +327,7 @@ const savePending = () => { try { pending ? localStorage.setItem(PENDING, JSON.s
 let logoData = '';
 document.querySelectorAll('.chainpick').forEach(el => el.addEventListener('click', e => { if (e.target.tagName === 'INPUT' || pending) return; el.classList.toggle('on'); }));
 $('lName').oninput = $('lSym').oninput = () => { $('pvName').textContent = $('lName').value || 'Your token'; $('pvSym').textContent = '$' + ($('lSym').value.toUpperCase() || 'TICKER'); };
-$('lLogo').onchange = async e => { try { logoData = await TW.toWebp(e.target.files[0]); $('pvLogo').style.backgroundImage = `url("${logoData}")`; } catch (err) { $('lErr').textContent = err.message; } };
+$('lLogo').onchange = async e => { try { const f = e.target.files[0]; if (!f) return; $('lLogoName').textContent = f.name; $('lLogoName').style.color = 'var(--ink)'; logoData = await TW.toWebp(f); $('pvLogo').style.backgroundImage = `url("${logoData}")`; } catch (err) { $('lErr').textContent = err.message; } };
 
 function steps(list) { $('steps').innerHTML = list.map(s => `<li class="${s.c || ''}">${s.c === 'ok' ? '✓' : s.c === 'bad' ? '×' : '·'} <span>${s.t}</span></li>`).join(''); }
 function paintPending() {
